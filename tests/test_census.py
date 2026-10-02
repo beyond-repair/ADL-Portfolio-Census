@@ -44,3 +44,75 @@ def test_governance_and_substrate_present():
         "sunder",
     ):
         assert required in names
+
+
+def test_public_api_and_version():
+    import census
+
+    assert census.__version__ == "0.1.1"
+    assert census.validate_inventory().ok
+    assert "ADL-Governance" in {row["name"] for row in census.INVENTORY}
+
+
+def test_duplicate_name_is_rejected():
+    bad = [dict(INVENTORY[0]), dict(INVENTORY[0])]
+    report = validate_inventory(bad)
+    assert not report.ok
+    assert any("duplicate name" in err for err in report.errors)
+
+
+def test_claim_out_of_range_is_rejected():
+    bad = [dict(INVENTORY[0])]
+    bad[0]["claim"] = 9
+    report = validate_inventory(bad)
+    assert not report.ok
+    assert any("claim must be int 0-5" in err for err in report.errors)
+
+
+def test_archived_claim_above_one_is_rejected():
+    bad = [dict(INVENTORY[0])]
+    bad[0]["lifecycle"] = "ARCHIVED"
+    bad[0]["claim"] = 4
+    report = validate_inventory(bad)
+    assert not report.ok
+    assert any("archived/superseded" in err for err in report.errors)
+
+
+def test_unknown_cluster_and_empty_functions_are_rejected():
+    bad = [dict(INVENTORY[0])]
+    bad[0]["cluster"] = "not-a-cluster"
+    bad[0]["functions"] = []
+    report = validate_inventory(bad)
+    assert not report.ok
+    assert any("invalid cluster" in err for err in report.errors)
+    assert any("at least one function" in err for err in report.errors)
+
+
+def test_engine_module_exits_without_runpy_warning():
+    import subprocess
+    import sys
+
+    proc = subprocess.run(
+        [sys.executable, "-m", "census.engine"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert proc.returncode == 0, proc.stderr
+    assert "RuntimeWarning" not in proc.stderr
+    assert proc.stdout.rstrip().endswith("OK")
+
+
+def test_census_module_main_exits_ok():
+    import subprocess
+    import sys
+
+    proc = subprocess.run(
+        [sys.executable, "-m", "census"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert proc.returncode == 0, proc.stderr
+    assert "RuntimeWarning" not in proc.stderr
+    assert "OK" in proc.stdout
