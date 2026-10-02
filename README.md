@@ -46,15 +46,21 @@ This repository exists because [ADL-Governance](https://github.com/beyond-repair
 | `tests/` | Falsification of uniqueness, claim caps, required anchors |
 | CI | `python -m census.engine` then pytest |
 
-Claim level of this repo: **3** (deterministic structure over a dated snapshot; not a live GitHub crawler).
+Claim level of this repo: **≤1** (deterministic structure over the locked 2026-09-04 snapshot; not a live GitHub crawler and not an 81-row completeness proof). The banner and this line agree. A green run does not raise the claim.
 
 ## Quick start
 
+Python 3.10 or newer. From the repository root:
+
 ```bash
-pip install -r requirements.txt
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install -e ".[dev]"
 python -m census.engine
 python -m pytest -q
 ```
+
+`python -m census` prints the same report. Both exit 0 and print `OK` when every locked record passes. They exit 1 and list `ERRORS` when a record breaks the structural rules: unique name, cluster in `CLUSTERS`, lifecycle in `LIFECYCLES`, claim an integer 0–5, archived or superseded claim ≤1, at least one function, and `gaps` a list. Nothing in the checker calls GitHub. `requirements.txt` pins the same pytest used by CI for a root-directory run without an editable install.
 
 ---
 
