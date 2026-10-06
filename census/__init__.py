@@ -12,9 +12,10 @@ __all__ = [
     "COMPATIBLE_BUILDS",
     "CensusReport",
     "INVENTORY",
+    "SNAPSHOT_DATE",
     "validate_inventory",
 ]
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 
 def __getattr__(name: str) -> Any:
@@ -25,11 +26,12 @@ def __getattr__(name: str) -> Any:
             "CensusReport": CensusReport,
             "validate_inventory": validate_inventory,
         }[name]
-    if name in {"COMPATIBLE_BUILDS", "INVENTORY"}:
-        from .inventory import COMPATIBLE_BUILDS, INVENTORY
+    if name in {"COMPATIBLE_BUILDS", "INVENTORY", "SNAPSHOT_DATE"}:
+        from .inventory import COMPATIBLE_BUILDS, INVENTORY, SNAPSHOT_DATE
 
         return {
             "COMPATIBLE_BUILDS": COMPATIBLE_BUILDS,
             "INVENTORY": INVENTORY,
+            "SNAPSHOT_DATE": SNAPSHOT_DATE,
         }[name]
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

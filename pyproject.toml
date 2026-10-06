@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "adl-portfolio-census"
-version = "0.1.1"
+version = "0.1.2"
 description = "Deterministic SCAN/FORK/ANCHOR census for the beyond-repair portfolio."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -18,4 +18,3 @@ testpaths = ["tests"]
 
 [project.optional-dependencies]
 dev = ["pytest==8.3.5"]
-

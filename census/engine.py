@@ -9,6 +9,8 @@ from .inventory import (
     COMPATIBLE_BUILDS,
     INVENTORY,
     LIFECYCLES,
+    LOCKED_ROW_COUNT,
+    SNAPSHOT_DATE,
     RepoRecord,
 )
 
@@ -20,6 +22,7 @@ class CensusReport:
     lifecycle_counts: dict[str, int]
     gap_count: int
     compatible_not_built: list[str]
+    snapshot_date: str
     errors: tuple[str, ...] = field(default_factory=tuple)
 
     @property
@@ -56,6 +59,13 @@ def validate_inventory(records: list[RepoRecord] | None = None) -> CensusReport:
     lifecycle_counts: dict[str, int] = {l: 0 for l in LIFECYCLES}
     gap_count = 0
 
+    if SNAPSHOT_DATE != "2026-09-04":
+        errors.append(f"snapshot date drift: {SNAPSHOT_DATE}")
+    if records is INVENTORY and len(records) != LOCKED_ROW_COUNT:
+        errors.append(
+            f"locked row count drift: {len(records)} != {LOCKED_ROW_COUNT}"
+        )
+
     for i, rec in enumerate(records):
         errors.extend(_check_record(i, rec))
         name = rec.get("name", "")
@@ -85,13 +95,14 @@ def validate_inventory(records: list[RepoRecord] | None = None) -> CensusReport:
         lifecycle_counts=lifecycle_counts,
         gap_count=gap_count,
         compatible_not_built=not_built,
+        snapshot_date=SNAPSHOT_DATE,
         errors=tuple(errors),
     )
 
 
 def main() -> int:
     report = validate_inventory()
-    print(f"repos={report.repo_count} gaps={report.gap_count}")
+    print(f"repos={report.repo_count} gaps={report.gap_count} snapshot={report.snapshot_date}")
     print("clusters=", report.cluster_counts)
     print("lifecycle=", report.lifecycle_counts)
     print("not_built=", report.compatible_not_built)

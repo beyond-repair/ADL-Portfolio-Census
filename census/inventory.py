@@ -11,6 +11,11 @@ class RepoRecord(TypedDict):
     functions: list[str]
     gaps: list[str]
 
+# Frozen metadata. Later GitHub search totals must not rewrite these.
+SNAPSHOT_DATE = "2026-09-04"
+SNAPSHOT_SOURCE = "user:beyond-repair search, 65 items, incomplete rows collapsed"
+LOCKED_ROW_COUNT = 42
+
 CLUSTERS = (
     "governance",
     "cognitive-substrate",

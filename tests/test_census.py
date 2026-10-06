@@ -1,5 +1,5 @@
 from census.engine import validate_inventory
-from census.inventory import COMPATIBLE_BUILDS, INVENTORY, LIFECYCLES
+from census.inventory import COMPATIBLE_BUILDS, INVENTORY, LIFECYCLES, LOCKED_ROW_COUNT, SNAPSHOT_DATE
 
 
 def test_inventory_validates():
@@ -8,6 +8,7 @@ def test_inventory_validates():
     assert report.repo_count == len(INVENTORY)
     assert report.repo_count >= 40
     assert report.gap_count >= 1
+    assert report.snapshot_date == "2026-09-04"
 
 
 def test_unique_names():
@@ -49,9 +50,18 @@ def test_governance_and_substrate_present():
 def test_public_api_and_version():
     import census
 
-    assert census.__version__ == "0.1.1"
+    assert census.__version__ == "0.1.2"
     assert census.validate_inventory().ok
+    assert census.SNAPSHOT_DATE == SNAPSHOT_DATE
     assert "ADL-Governance" in {row["name"] for row in census.INVENTORY}
+
+
+def test_snapshot_row_count_is_frozen():
+    assert SNAPSHOT_DATE == "2026-09-04"
+    assert len(INVENTORY) == LOCKED_ROW_COUNT == 42
+    # A later repository existing on GitHub does not rewrite the locked queue.
+    graph = next(i for i in COMPATIBLE_BUILDS if i["name"] == "aegis-repo-graph")
+    assert graph["status"] == "not_built"
 
 
 def test_duplicate_name_is_rejected():
