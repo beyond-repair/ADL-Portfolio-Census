@@ -17,4 +17,4 @@ include = ["census*"]
 testpaths = ["tests"]
 
 [project.optional-dependencies]
-dev = ["pytest==8.3.5"]
+dev = ["pytest==9.0.3"]
